@@ -271,11 +271,11 @@ def getScenery(words, resPath):
             if ind>len(words)-1:
                 break
     print('=== СЦЕНЫ СОБРАНЫ ===')
-    print(scenes[0].trash)
+    # print(scenes[0].trash)
     remove_quotes(scenes)
     transitions = get_transitions(scenes)
     set_transitions(scenes, transitions)
-    print('=== ПЕРЕХОДЫ УСТАНОВЛЕНЫ. ЗАПУСКАЕМ БОТА... ===')
+    print('=== ПЕРЕХОДЫ УСТАНОВЛЕНЫ. БОТ ЗАПУЩЕН ===')
     first_message = scenes[0].getSceneMessages()[0]
     tgbot = bot.Bot(token, first_message)
 

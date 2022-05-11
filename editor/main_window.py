@@ -191,7 +191,7 @@ class MainWindow(wx.Frame):
             result = self.create_project_dd.ShowModal()
             if result == wx.ID_OK:
                 path = self.create_project_dd.GetPath()
-                print('Выбран каталог:', path)
+                # print('Выбран каталог:', path)
                 self.project = Project(path)
                 self.updateUI()
 
@@ -201,7 +201,7 @@ class MainWindow(wx.Frame):
         result = self.open_project_dd.ShowModal()
         if result == wx.ID_OK:
             path =self.open_project_dd.GetPath()
-            print('Выбран каталог:', path)
+            # print('Выбран каталог:', path)
             if not Project.is_project(path):
                 wx.MessageBox('Указанная папка не содержит проекта.', 'Ошибка', wx.OK | wx.ICON_WARNING, self)
             else:

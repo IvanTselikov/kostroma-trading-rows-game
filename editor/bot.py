@@ -174,7 +174,7 @@ class Bot:
                     file.close()
         else:
             sent = None
-            print('хз')
+            print('Неизвестный тип сообщений.')
         # сохраняем id последнего отправленного сообщения для конкретного пользователя и новый пост
         for i, (user_id, last_post, last_message_id) in enumerate(self.user_table):
             if user_id == received.chat.id:
