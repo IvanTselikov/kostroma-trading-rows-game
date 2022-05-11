@@ -272,11 +272,12 @@ def getScenery(words, resPath):
                 break
     print('=== СЦЕНЫ СОБРАНЫ ===')
     print(scenes[0].trash)
+    remove_quotes(scenes)
     transitions = get_transitions(scenes)
-    set_transitions(transitions)
+    set_transitions(scenes, transitions)
     print('=== ПЕРЕХОДЫ УСТАНОВЛЕНЫ. ЗАПУСКАЕМ БОТА... ===')
     first_message = scenes[0].getSceneMessages()[0]
-    bot = bot.Bot(token, first_message)
+    tgbot = bot.Bot(token, first_message)
 
 
 
@@ -287,6 +288,14 @@ def find_scene_by_name(scenes, name):
     return None
 
 
+def remove_quotes(scenes):
+    for scene in scenes:
+        words = scene.trash
+        for i in range(len(words)):
+            if words[i][2] == CodeAnalyzer.STRING:
+                scene.trash[i] = (words[i][0].replace('"', ''), words[i][1], words[i][2])
+
+
 def get_transitions(scenes):
     transitions = []  # [(from_scene_name, requiered, next_scene_name, is_keyword)]
     for scene in scenes:
@@ -295,6 +304,8 @@ def get_transitions(scenes):
             if scene.trash[0][0] == CodeAnalyzer.WAIT_AUDIO or scene.trash[0][0] == CodeAnalyzer.WAIT_TEXT:
                 if len(scene.trash)<2:
                     raise Exception(f'Блок {scene.trash[0][0]} не закрыт. Строка {scene.trash[0][1]}.')
+                if scene.trash[1][0] != CodeAnalyzer.COLON or scene.trash[1][2] != CodeAnalyzer.KEYWORD:
+                    raise Exception(f'Пропущено двоеточие. Строка {scene.trash[0][1]}.')
                 end_idx = 0
                 for i in range(1, len(scene.trash)):
                     if scene.trash[i][0] == CodeAnalyzer.WAIT_END and\
@@ -303,7 +314,7 @@ def get_transitions(scenes):
                         break
                 if end_idx == 0:
                     raise Exception(f'Блок {scene.trash[0][0]} не закрыт. Строка {scene.trash[0][1]}.')
-                content = scene.trash[1:end_idx]
+                content = scene.trash[2:end_idx]
                 if not content:
                     raise Exception(f'Блок {scene.trash[0][0]} пуст. Строка {scene.trash[0][1]}.')
                 requiered = None
@@ -316,31 +327,38 @@ def get_transitions(scenes):
                                 is_keyword = False
                             requiered = content[i][0]
                         elif next_scene is None:
-                            if find_scene_by_name(scenes, content[i][2]) is None:
-                                raise Exception(f'Сцена {content[i][2]} не найдена. Строка {content[i][1]}.')
+                            if find_scene_by_name(scenes, content[i][0]) is None:
+                                raise Exception(f'Сцена {content[i][0]} не найдена. Строка {content[i][1]}.')
                             next_scene = content[i][0]
                         else:
                             raise Exception(f'Ожидалось {CodeAnalyzer.DOUBLE_DASH}. Строка {content[i][1]}.')
                     elif content[i][2] == CodeAnalyzer.KEYWORD:
                         if content[i][0] == CodeAnalyzer.ASTERISK:
-                            if is_keyword is None and requiered is None:
-                                is_keyword == True
-                            else:
-                                raise Exception(f'Ключевое слово {CodeAnalyzer.ASTERISK} не на своём месте. Строка {content[i][1]}.')
+                            is_keyword = True
+                            # if is_keyword is None and requiered is None:
+                            #     is_keyword == True
+                            # else:
+                            #     raise Exception(f'Ключевое слово {CodeAnalyzer.ASTERISK} не на своём месте. Строка {content[i][1]}.')
                         elif content[i][0] == CodeAnalyzer.DOUBLE_DASH:
                             pass
                         elif content[i][0] == CodeAnalyzer.ELSE:
                             if requiered is None:
                                 requiered = Post.SEND_ELSE
+                                is_keyword = False
                             else:
                                 raise Exception(f'Ключевое слово {CodeAnalyzer.ELSE} не на своём месте. Строка {content[i][1]}.')
                         else:
                             raise Exception(f'Неожиданное ключевое слово {content[i][0]} в блоке {scene.trash[0][0]}. Строка {content[i][1]}.')
                     if not (requiered is None or next_scene is None):
                         transitions.append((scene.name, requiered, next_scene, is_keyword))
+                        requiered = None
+                        next_scene = None
+                        is_keyword = None
             elif scene.trash[0][0] == CodeAnalyzer.BUTTONS:
                 if len(scene.trash)<4:
                     raise Exception(f'Блок {scene.trash[0][0]} не закрыт. Строка {scene.trash[0][1]}.')
+                if scene.trash[2][0] != CodeAnalyzer.COLON or scene.trash[2][2] != CodeAnalyzer.KEYWORD:
+                    raise Exception(f'Пропущено двоеточие. Строка {scene.trash[0][1]}.')
                 end_idx = 0
                 for i in range(1, len(scene.trash)):
                     if scene.trash[i][0] == CodeAnalyzer.BUTTONS_END and\
@@ -349,7 +367,7 @@ def get_transitions(scenes):
                         break
                 if end_idx == 0:
                     raise Exception(f'Блок {scene.trash[0][0]} не закрыт. Строка {scene.trash[0][1]}.')
-                content = scene.trash[2:end_idx]
+                content = scene.trash[3:end_idx]
                 if not content:
                     raise Exception(f'Блок {scene.trash[0][0]} пуст. Строка {scene.trash[0][1]}.')
                 requiered = None
@@ -359,8 +377,8 @@ def get_transitions(scenes):
                         if requiered is None:
                             requiered = content[i][0]
                         elif next_scene is None:
-                            if find_scene_by_name(scenes, content[i][2]) is None:
-                                raise Exception(f'Сцена {content[i][2]} не найдена. Строка {content[i][1]}.')
+                            if find_scene_by_name(scenes, content[i][0]) is None:
+                                raise Exception(f'Сцена {content[i][0]} не найдена. Строка {content[i][1]}.')
                             next_scene = content[i][0]
                         else:
                             raise Exception(f'Ожидалось {CodeAnalyzer.DOUBLE_DASH}. Строка {content[i][1]}.')
@@ -369,6 +387,9 @@ def get_transitions(scenes):
                             raise Exception(f'Неожиданное ключевое слово {content[i][0]} в блоке {scene.trash[0][0]}. Строка {content[i][1]}.')
                     if not (requiered is None or next_scene is None):
                         transitions.append((scene.name, requiered, next_scene, CodeAnalyzer.BUTTONS))
+                        requiered = None
+                        next_scene = None
+                        is_keyword = None
             elif scene.trash[0][0] == CodeAnalyzer.TRANSITION:
                 if len(scene.trash)<1:
                     raise Exception(f'Пустой переход. Строка {scene.trash[0][1]}.')
@@ -376,7 +397,7 @@ def get_transitions(scenes):
                     raise Exception(f'Ожидалось название сцены для перехода. Строка {scene.trash[0][1]}.')
                 if find_scene_by_name(scenes, scene.trash[1][0]) is None:
                     raise Exception(f'Сцена {scene.trash[1][0]} не найдена. Строка {scene.trash[1][1]}.')
-                transitions.append((scene.name, Post.SEND_IMMEDIATELY, scene.trash[1][0]))
+                transitions.append((scene.name, Post.SEND_IMMEDIATELY, scene.trash[1][0], scene.trash[1][0]))
     return transitions
 
 

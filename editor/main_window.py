@@ -6,6 +6,8 @@ from project_controller import Project
 from editor import Editor
 from help import HelpDialog, DocDialog
 import parserV2
+from threading import Thread
+import os
 
 
 class MainWindow(wx.Frame):
@@ -84,6 +86,8 @@ class MainWindow(wx.Frame):
         self.Bind(wx.EVT_BUTTON, self.remove_res, self.res_rm_b)
 
         self.editor.SetFocus()
+
+        self.th = None  # поток запуска парсера
 
         # self.res_lb.Bind(wx.EVT_LEFT_UP, self.show_ctx_res)
 
@@ -224,12 +228,10 @@ class MainWindow(wx.Frame):
 
     def onStartClick(self, event):
         self.code_analyzer = code_analyzer.CodeAnalyzer()
-        if self.editor.analyzed:
+        if self.editor.analyzed and (self.th is None or not self.th.is_alive()):
             words_for_parsing = self.code_analyzer.get_words_for_parsing(self.editor.analyzed)
-            parserV2.getScenery(words_for_parsing, self.project.path+"/res/")
-        else:
-            words_for_parsing = []
-        print(words_for_parsing)
+            self.th = Thread(target=parserV2.getScenery, args=(words_for_parsing, self.project.res + os.sep))
+            self.th.start()
 
 
     def getWordsForParsing(self):

@@ -7,8 +7,8 @@ import morpheme
 
 class Post(ABC):
     """Класс поста."""
-    SEND_IMMEDIATELY = 0  # константа: отправить следующий пост сразу за текущим
-    SEND_ELSE = 1  # константа: отправить следующий пост, если условие не выполнилось
+    SEND_IMMEDIATELY = '0'  # константа: отправить следующий пост сразу за текущим
+    SEND_ELSE = '1'  # константа: отправить следующий пост, если условие не выполнилось
     def __init__(self, content):
         """Создать пост с указанным контентом.
 
@@ -33,6 +33,7 @@ class Post(ABC):
                     в required_callback
         """
         def transition(received):
+            print(received, requiered_callback, is_keyword)
             if requiered_callback == self.SEND_IMMEDIATELY:
                 # следующий пост следует отправить сразу за текущим
                 return next_post
@@ -206,7 +207,7 @@ class ButtonsPost(Post):
         def transition(callback_data):
             if callback_data == requiered_button.callback_data and requiered_button in self.content:
                 # удаляем с панели кнопку, на которую нажали
-                del self.content[self.content.index(requiered_button)]
+                # del self.content[self.content.index(requiered_button)]
                 return next_post
         self.transitions.append(transition)
 

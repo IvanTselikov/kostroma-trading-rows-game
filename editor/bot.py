@@ -25,7 +25,14 @@ class Bot:
             # делаем запись о новом игроке
             self.user_table.append((message.from_user.id, self.start_post, message.id))
             print(f'Пользователь {message.from_user.id} начал игру.')
-            self.send(message, self.start_post)  # отправляем первое сообщение
+            post = self.start_post
+            self.send(message, post)  # отправляем первое сообщение
+            while True:
+                post = post.get_next(message.text)
+                if post is None:
+                    break
+                self.send(received=message, new_post=post)
+                message.text = None
 
 
         @self.tgbot.message_handler(content_types=['text'])
@@ -99,7 +106,7 @@ class Bot:
 
         self.tgbot.infinity_polling()  # начинаем слушать бота
 
-    TIMEOUT = 30
+    TIMEOUT = 45
     def send(self, received, new_post):
         """Отправляет пост в чат.
 

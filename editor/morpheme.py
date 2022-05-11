@@ -12,7 +12,10 @@ class StringsAnalyser:
     def replace_numbers_with_words(self, string):
         """Заменяет все числа в строке словами."""
         # ищем числа в строке
-        numbers = re.findall(r'\d+', string)
+        try:
+            numbers = re.findall(r'\d+', string)
+        except:
+            return string
         # преобразуем числа в слова
         numwords = []
         for number in numbers:
@@ -43,6 +46,10 @@ class StringsAnalyser:
     MIXED = 0  # строка содержит и слова, и цифры
 
     def get_status(s):
+        try:
+            re.findall(r'\d+', s)
+        except:
+            return self.WORDS_ONLY
         if s.isdigit():
             return self.DIGITS_ONLY
         if not re.findall(r'\d+', s):
@@ -52,8 +59,14 @@ class StringsAnalyser:
     def check(self, received, requiered, is_keyword):
         """Проверяет, содержится (или совпадает) строка requiered в строке received."""
         contains_digits = lambda s: re.findall(r'\d+', s)
-        cd_requiered = contains_digits(requiered)
-        cd_received = contains_digits(received)
+        try:
+            cd_requiered = contains_digits(requiered)
+        except:
+            cd_requiered = False
+        try:
+            cd_received = contains_digits(received)
+        except:
+            cd_received = False
         if cd_requiered and cd_received:
             # не переводим не склоняем, ищем
             if is_keyword:
