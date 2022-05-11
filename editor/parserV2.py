@@ -103,7 +103,7 @@ def getScenery(words, resPath):
                 groupMessage.append(el)
             else:
                 elements.append(el)
-            print(words[ind][0][1:len(words[ind][0])-1])
+            #print(words[ind][0][1:len(words[ind][0])-1])
             ind += 1                
             #if words[ind][2]==CodeAnalyzer.KEYWORD:
             #        raise Exception(f'Ожидилась строка в кавычках после ключевого слова {CodeAnalyzer.PHOTO}. Строка {words[ind-1][1]}')                
@@ -113,7 +113,7 @@ def getScenery(words, resPath):
                 elements.append(VoicePost(resPath+words[ind][0][1:len(words[ind][0])-1]))
             except Exception as e:
                 raise Exception (str(e)+f" Строка {words[ind][1]}")
-            print(words[ind][0][1:len(words[ind][0])-1])
+            #print(words[ind][0][1:len(words[ind][0])-1])
             ind += 1
             #if words[ind][2]==CodeAnalyzer.KEYWORD:
             #    raise Exception(f'Ожидилась строка в кавычках после ключевого слова {CodeAnalyzer.VOICE}. Строка {words[ind-1][1]}')                
@@ -127,7 +127,7 @@ def getScenery(words, resPath):
                 groupMessage.append(el)
             else:
                 elements.append(el)
-            print(words[ind][0][1:len(words[ind][0])-1])
+            #print(words[ind][0][1:len(words[ind][0])-1])
             ind += 1
             #if words[ind][2]==CodeAnalyzer.KEYWORD:
             #   raise Exception(f'Ожидилась строка в кавычках после ключевого слова {CodeAnalyzer.AUDIO}. Строка {words[ind-1][1]}')                
@@ -141,7 +141,7 @@ def getScenery(words, resPath):
                 groupMessage.append(el)
             else:
                 elements.append(el)
-            print(words[ind][0][1:len(words[ind][0])-1])
+            #print(words[ind][0][1:len(words[ind][0])-1])
             ind += 1        
             #if words[ind][2]==CodeAnalyzer.KEYWORD:
             #    raise Exception(f'Ожидилась строка в кавычках после ключевого слова {CodeAnalyzer.VIDEO}. Строка {words[ind-1][1]}')            
@@ -152,7 +152,7 @@ def getScenery(words, resPath):
              except Exception as e:
                  raise Exception (str(e)+f" Строка {words[ind][1]}")
              elements.append(el)
-             print("Круг "+words[ind][0][1:len(words[ind][0])-1])
+             #print("Круг "+words[ind][0][1:len(words[ind][0])-1])
              ind += 1
              #if words[ind][2]==CodeAnalyzer.KEYWORD:
              #   raise Exception(f'Ожидилась строка в кавычках после ключевого слова {CodeAnalyzer.ROUND}. Строка {words[ind-1][1]}')             
@@ -162,7 +162,7 @@ def getScenery(words, resPath):
                 elements.append(GifPost(resPath+words[ind][0][1:len(words[ind][0])-1]))
             except Exception as e:
                 raise Exception (str(e)+f" Строка {words[ind][1]}")
-            print(words[ind][0][1:len(words[ind][0])-1])
+            #print(words[ind][0][1:len(words[ind][0])-1])
             ind += 1
             #if words[ind][2]==CodeAnalyzer.KEYWORD:
             #    raise Exception(f'Ожидилась строка в кавычках после ключевого слова {CodeAnalyzer.GIF}. Строка {words[ind-1][1]}')            
@@ -176,7 +176,7 @@ def getScenery(words, resPath):
                 groupMessage.append(el)
             else:
                 elements.append(el)
-            print(words[ind][0][1:len(words[ind][0])-1])
+            #print(words[ind][0][1:len(words[ind][0])-1])
             ind += 1
             #if words[ind][2]==CodeAnalyzer.KEYWORD:
             #    raise Exception(f'Ожидилась строка в кавычках после ключевого слова {CodeAnalyzer.DOC}. Строка {words[ind-1][1]}')            
@@ -186,7 +186,7 @@ def getScenery(words, resPath):
                 elements.append(StickerPost(resPath+words[ind][0][1:len(words[ind][0])-1]))
             except Exception as e:
                 raise Exception (str(e)+f" Строка {words[ind][1]}")
-            print(words[ind][0][1:len(words[ind][0])-1])
+            #print(words[ind][0][1:len(words[ind][0])-1])
             ind += 1
             #if words[ind][2]==CodeAnalyzer.KEYWORD:
             #    raise Exception(f'Ожидилась строка в кавычках после ключевого слова {CodeAnalyzer.STICKER}. Строка {words[ind-1][1]}')            
@@ -208,6 +208,7 @@ def getScenery(words, resPath):
             buttons = []
             waitSomething.append(words[ind])
             ind += 1
+            waitSomething.append(words[ind])
             if words[ind][2]==CodeAnalyzer.STRING:
                 buttonsDescription = words[ind][0][1:len(words[ind][0])-1]
                 if groupMessageFlag:
@@ -216,24 +217,29 @@ def getScenery(words, resPath):
                     pass
                    # print(buttonsDescription)
                 ind += 1
+                waitSomething.append(words[ind])
                 if not words[ind][0]==CodeAnalyzer.COLON:
                     raise Exception(f'Ожидилось ключевое слово {CodeAnalyzer.COLON} . Строка {words[ind-1][1]}')
                 else:
                     ind +=1
+                    waitSomething.append(words[ind])
                     while words[ind][0]!=CodeAnalyzer.BUTTONS_END:
                         if words[ind][2]==CodeAnalyzer.STRING:
                             buttons.append(Button(words[ind][0][1:len(words[ind][0])-1]))
                             # print(words[ind][0][1:len(words[ind][0])-1])
-                            ind += 1                            
+                            ind += 1 
+                            waitSomething.append(words[ind])
                             if words[ind][0]!=CodeAnalyzer.DOUBLE_DASH:
                                 raise Exception(f"Ожидалось ключевое слово {CodeAnalyzer.DOUBLE_DASH}. Строка {words[ind-1][1]}")
                             else:
                                 ind += 1
+                                waitSomething.append(words[ind])
                                 if words[ind-1][1]!=words[ind][1]:
                                     raise Exception(f"Отсутствует действие у кнопки. Строка {words[ind-1][1]}")
                             # print(f'Действие: {words[ind][0]}')
                             ind += 1
-                    waitSomething.append(words[ind])
+                            waitSomething.append(words[ind])
+                    #waitSomething.append(words[ind])
                     #if words[ind][2]==CodeAnalyzer.KEYWORD and words[ind][1]!=words[ind-1][1]:
                     #   raise Exception(f'Ожидилось ключевое слово {CodeAnalyzer.BUTTONS_END}. Строка {words[ind][1]}')
                     #print(f'Действие: {words[ind-1][0]}')                    
