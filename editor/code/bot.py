@@ -186,8 +186,8 @@ class Bot:
                 self.user_table[i] = (user_id, new_post, sent.id)
                 break
         if new_post.is_endpoint():
-                    print('endpoint')
-                    # отправлено последнее сообщение игры, игрок может начать заново
-                    for i in range(len(self.user_table)):
-                        if self.user_table[i][0] == received.from_user.id:
-                            del self.user_table[i]
+            # отправлено последнее сообщение игры, игрок может начать заново
+            for i in range(len(self.user_table)):
+                if self.user_table[i][0] == received.from_user.id:
+                    print(f'Пользователь {self.user_table[i][0]} прошёл игру.')
+                    del self.user_table[i]
