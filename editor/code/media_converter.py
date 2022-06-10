@@ -6,6 +6,7 @@ import os
 import speech_recognition as sr  # pip install SpeechRecognition
 import subprocess
 from moviepy.video.io.VideoFileClip import VideoFileClip
+import config as cfg
 
 
 class MediaConverter:
@@ -89,21 +90,20 @@ class MediaConverter:
             lastIndexOfSlash = 0
         return path[:lastIndexOfSlash]
 
-    PROJ_PATH = os.path.abspath(os.path.join(__file__,'../..')) + os.sep
-    FFMPEG_PATH = f'{PROJ_PATH}{os.sep}ffmpeg{os.sep}bin{os.sep}ffmpeg.exe'
-    AUDIO_WAV = 'audio.wav'
+
     UNKNOWN = '#'
     def voiceToText(self, audio_ogg):
-        command = f'{self.FFMPEG_PATH}*-loglevel*quiet*-i*{audio_ogg}*-y*-c:a*pcm_s16le*{self.AUDIO_WAV}'
+        audio_wav = audio_ogg + '.wav'
+        command = f'{cfg.FFMPEG_PATH}*-loglevel*quiet*-i*{audio_ogg}*-y*-c:a*pcm_s16le*{audio_wav}'
         process = subprocess.run(command.split('*'))
         r = sr.Recognizer()
-        with sr.AudioFile(self.AUDIO_WAV) as source:
+        with sr.AudioFile(audio_wav) as source:
             audio = r.record(source)
         try:
             text = r.recognize_google(audio, language = 'ru-RU')
         except:
             text = self.UNKNOWN
-        os.remove(self.AUDIO_WAV)
+        os.remove(audio_wav)
         os.remove(audio_ogg)
         return text
 
@@ -113,10 +113,9 @@ class MediaConverter:
         new_path, fmat = os.path.splitext(path)
         new_path += '.ogg'
         if fmat == '.mp3':
-            command = f'{self.FFMPEG_PATH}*-loglevel*quiet*-i*{path}*-y*-c:a*libvorbis*-q:a*4*{new_path}'
+            command = f'{cfg.FFMPEG_PATH}*-loglevel*quiet*-i*{path}*-y*-c:a*libvorbis*-q:a*4*{new_path}'
         elif fmat == '.wav':
-            command = f'{self.FFMPEG_PATH}*-loglevel*quiet*-i*{path}*-y*-acodec*libvorbis*{new_path}'
-            # command = f'{self.FFMPEG_PATH}*-i*{path}*-y*-acodec*libvorbis*{new_path}'
+            command = f'{cfg.FFMPEG_PATH}*-loglevel*quiet*-i*{path}*-y*-acodec*libvorbis*{new_path}'
         else:
             raise Exception(f'Не удалось преобразовать {path} к формату голосового сообщения.')
         process = subprocess.run(command.split('*'))
@@ -128,7 +127,7 @@ class MediaConverter:
         new_path, fmat = os.path.splitext(path)
         new_path += '.mp3'
         if fmat == '.wav' or fmat == '.ogg':
-            command = f'{self.FFMPEG_PATH}*-loglevel*quiet*-i*{path}*-y*-acodec*libmp3lame*{new_path}'
+            command = f'{cfg.FFMPEG_PATH}*-loglevel*quiet*-i*{path}*-y*-acodec*libmp3lame*{new_path}'
         else:
             raise Exception(f'Не удалось преобразовать {path} к формату .mp3.')
         process = subprocess.run(command.split('*'))

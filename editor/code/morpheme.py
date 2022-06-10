@@ -1,3 +1,10 @@
+import os
+import sys
+import pathlib
+
+if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+    os.environ["PYMORPHY2_DICT_PATH"] = str(pathlib.Path(sys._MEIPASS).joinpath('pymorphy2_dicts_ru/data'))
+
 import pymorphy2  # pip install pymorphy2
 import num2words  # pip install num2words
 import re

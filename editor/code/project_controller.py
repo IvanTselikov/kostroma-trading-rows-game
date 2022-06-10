@@ -6,6 +6,8 @@ import parser
 import subprocess
 from bot import Bot
 import sys
+import config as cfg
+
 
 class Project:
     """Проект с ботом."""
@@ -15,8 +17,7 @@ class Project:
     SCN_FILENAME = 'code.scn'  # название файла с кодом
     OBJ_FILENAME = 'obj.bin'  # название файла со скомпилированными объектами
 
-
-    def __init__(self, path, bot_path):
+    def __init__(self, path):
         """Создаёт новый проект по указанному пути."""
         self.path = path  # путь до проекта
         self.res = path + os.sep + self.RES_NAME  # путь до папки с ресурсами
@@ -24,7 +25,6 @@ class Project:
         self.bin = path + os.sep + self.BIN_NAME  # путь до папки со скомпилированным проектом
         self.obj = self.bin + os.sep + self.OBJ_FILENAME  # путь до файла со скомпилированными объектами
         self.name = os.path.basename(self.path)  # название проекта
-        self.bot_path = bot_path  # путь до скрипта, запускающего бота
         self.code_analyzer = CodeAnalyzer()
         self.process = None
         self.create_temp()
@@ -118,12 +118,12 @@ class Project:
     def run(self, recompile, new_console=True):
         """Собирает .exe-файл с ботом"""
         if new_console:
+            args = [cfg.COMPILER_PATH, self.path]
             if recompile:
-                self.process = subprocess.Popen(['python', __file__, '-c', self.path, self.bot_path],
-                                                creationflags=subprocess.CREATE_NEW_CONSOLE)
-            else:
-                self.process = subprocess.Popen(['python', __file__, self.path, self.bot_path],
-                                                creationflags=subprocess.CREATE_NEW_CONSOLE)
+                args.insert(1, '-c')
+            if not cfg.IS_EXE:
+                args.insert(0, 'python')
+            self.process = subprocess.Popen(args, creationflags=subprocess.CREATE_NEW_CONSOLE)
         else:
             if recompile:
                 code = self.get_code()
@@ -150,20 +150,3 @@ class Project:
         if self.process and self.process.poll() is None:
             return True
         return False
-
-
-if __name__ == '__main__':
-    try:
-        project = Project(sys.argv[-2], sys.argv[-1])
-        if len(sys.argv) == 4:
-            # project_controller.exe -c path bot_path
-            # нужно скомпилировать проект
-            project.run(recompile=True, new_console=False)
-        elif len(sys.argv) == 3:
-            # project_controller.exe path bot_path
-            # нужно запустить уже скомпилированный проект
-            project.run(recompile=False, new_console=False)
-    except Exception as e:
-        print(e)
-        input('Для выхода нажмите любую клавишу...')
-        sys.exit(0)

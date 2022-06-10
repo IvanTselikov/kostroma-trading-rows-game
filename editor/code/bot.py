@@ -1,7 +1,7 @@
 import telebot  # pip install pyTelegramBotAPI
 from telebot import types
 from bot_message import *
-from config import TOKEN
+# from config import TOKEN
 import media_converter
 import pickle
 import sys
@@ -17,7 +17,7 @@ class Bot:
         token - токен бота
         start_post - первый пост игры
         """
-        token = TOKEN
+        self.token = token
         self.tgbot = telebot.TeleBot(token)
         self.user_table = []  # таблица с записями вида "userid - post - last_message_id"
         self.start_post = start_post
@@ -59,7 +59,6 @@ class Bot:
                 self.send(received=message, new_post=post)
                 message.text = None
 
-        AUDIO_OGG = 'audio.ogg'
         @self.tgbot.message_handler(content_types=['voice'])
         def handle_voice(message):
             """Обрабатывает голосовые сообщения от игрока."""
@@ -73,10 +72,11 @@ class Bot:
                 return
             file_info = self.tgbot.get_file(message.voice.file_id)
             downloaded_file = self.tgbot.download_file(file_info.file_path)
-            with open(AUDIO_OGG, 'wb') as f:
+            audio_ogg = str(message.chat.id) + '.ogg'
+            with open(audio_ogg, 'wb') as f:
                 f.write(downloaded_file)
             mc = media_converter.MediaConverter()
-            text = mc.voiceToText(AUDIO_OGG)
+            text = mc.voiceToText(audio_ogg)
             if text == mc.UNKNOWN:
                 self.tgbot.send_message(message.chat.id, '🙁 Извините, я не понял, что вы сказали', timeout=self.TIMEOUT)
             else:
@@ -188,6 +188,6 @@ class Bot:
         if new_post.is_endpoint():
             # отправлено последнее сообщение игры, игрок может начать заново
             for i in range(len(self.user_table)):
-                if self.user_table[i][0] == received.from_user.id:
+                if self.user_table[i][0] == received.chat.id:
                     print(f'Пользователь {self.user_table[i][0]} прошёл игру.')
                     del self.user_table[i]
