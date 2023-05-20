@@ -11,3 +11,6 @@
 * Ожидайте сообщения "=== БОТ ЗАПУЩЕН. МОЖНО ИГРАТЬ ==="
 * Перейдите по ссылке: t.me/TraidingRowsGameBot (вручную либо просканируйте QR-код в game/src/qr.png)
 * Нажмите на кнопку "Играть"
+<!--stackedit_data:
+eyJoaXN0b3J5IjpbLTE0NDIwNzUzODhdfQ==
+-->
